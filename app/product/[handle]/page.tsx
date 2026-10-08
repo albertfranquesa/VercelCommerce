@@ -2,6 +2,7 @@ import { GridTileImage } from "components/grid/tile";
 import Footer from "components/layout/footer";
 import { Gallery } from "components/product/gallery";
 import { ProductDescription } from "components/product/product-description";
+import { RecentlyViewed } from "components/product/recently-viewed";
 import { HIDDEN_PRODUCT_TAG } from "lib/constants";
 import { getProduct, getProductRecommendations } from "lib/shopify";
 import type { Image } from "lib/shopify/types";
@@ -77,7 +78,8 @@ export default async function ProductPage(props: {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
-          __html: JSON.stringify(productJsonLd),
+          // Escape "<" so catalog text containing "</script>" cannot break out of the tag.
+          __html: JSON.stringify(productJsonLd).replace(/</g, "\\u003c"),
         }}
       />
       <div className="mx-auto max-w-(--breakpoint-2xl) px-4">
@@ -104,6 +106,15 @@ export default async function ProductPage(props: {
           </div>
         </div>
         <RelatedProducts id={product.id} />
+        <RecentlyViewed
+          current={{
+            handle: product.handle,
+            title: product.title,
+            imageUrl: product.featuredImage.url,
+            amount: product.priceRange.maxVariantPrice.amount,
+            currencyCode: product.priceRange.maxVariantPrice.currencyCode,
+          }}
+        />
       </div>
       <Footer />
     </>
